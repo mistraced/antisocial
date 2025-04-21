@@ -1,0 +1,15 @@
+* text=auto
+
+*.c text
+*.cpp text
+*.h text
+*.m text
+*.mm text
+*.md text
+*.txt text
+*.html text
+*.bat text
+*.frag text
+*.vert text
+*.mkb text
+*.icf text

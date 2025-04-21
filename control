@@ -1,0 +1,8 @@
+Package: io.cold.visions
+Name: antisocial paste
+Depends: mobilesubstrate
+Version: 1.0
+Architecture: iphoneos-arm
+Description: autowall.eu
+Maintainer: autowall.eu
+Author: autowall.eu

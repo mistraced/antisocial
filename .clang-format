@@ -1,0 +1,46 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+AccessModifierOffset: -4
+ColumnLimit: 0
+BreakBeforeBraces: Custom
+BraceWrapping:
+  BeforeLambdaBody: false
+  BeforeWhile: true
+  IndentBraces: false
+  AfterNamespace: true
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterStruct: true
+  AfterCaseLabel: true
+  AfterExternBlock: true
+  AfterUnion: true
+  SplitEmptyNamespace: true
+  SplitEmptyRecord: true
+NamespaceIndentation: All
+SpacesInParens: Custom
+SpacesInParensOptions:
+  ExceptDoubleParentheses: false
+  InConditionalStatements: true
+  InEmptyParentheses: true
+  InCStyleCasts: true
+  Other: true
+SpacesInSquareBrackets: true
+SpacesBeforeTrailingComments: 1
+AllowShortFunctionsOnASingleLine: Inline
+AlwaysBreakTemplateDeclarations: false
+BreakConstructorInitializers: BeforeComma
+DerivePointerAlignment: false
+PointerAlignment: Left
+SpacesInAngles: Always
+ObjCSpaceAfterProperty: true
+ObjCSpaceBeforeProtocolList: true
+SpaceAfterCStyleCast: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeJsonColon: true
+SpacesInContainerLiterals: true
+SortIncludes: false
