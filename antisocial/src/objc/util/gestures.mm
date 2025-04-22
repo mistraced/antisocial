@@ -59,7 +59,7 @@ static UIWindow* main_window;
         _antisocial_view = vc;
     }
 
-    [antisocial set_presented:false];
+    [antisocial set_presented:true];
     [[UIApplication sharedApplication].windows[ 0 ].rootViewController.view addSubview:_antisocial_view.view];
 }
 
@@ -71,7 +71,7 @@ static UIWindow* main_window;
         _antisocial_view = vc;
     }
 
-    [antisocial set_presented:true];
+    [antisocial set_presented:false];
     [[UIApplication sharedApplication].windows[ 0 ].rootViewController.view addSubview:_antisocial_view.view];
 }
 @end

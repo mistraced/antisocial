@@ -1,6 +1,11 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <Foundation/Foundation.h>
+#import <mach-o/dyld.h>
+#import <mach/mach.h>
+#import <mach/mach_traps.h>
+
+#import <thread>
 
 #import "imgui.h"
 #import "imgui_internal.h"
@@ -8,14 +13,43 @@
 #import "antisocial.h"
 #import "util/backend/imgui_impl_metal.h"
 
+#import "dobby/dobby.hpp"
+#import "memory_manager/memory_manager.hpp"
+
+#import "globals.hpp"
+#import "interface/interface.hpp"
+
+#pragma region cpp_defs
+globals_t* g_ctx = new globals_t( );
+
+uintptr_t memory_manager::get_base( )
+{
+    for ( int i = 0; i < _dyld_image_count( ); i++ )
+    {
+        const char* name = _dyld_get_image_name( i );
+        if ( std::strstr( name, "UnityFramework.framework/UnityFramework" ) )
+        {
+            return static_cast< uintptr_t >( _dyld_get_image_vmaddr_slide( i ) );
+        }
+    }
+
+    std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+
+    return 0;
+}
+
+void memory_manager::hook( uintptr_t address, void* modified, void** original )
+{
+    DobbyHook( reinterpret_cast< void* >( address ), modified, original );
+}
+#pragma endregion
+
 @interface antisocial ( ) < MTKViewDelegate >
 @property ( nonatomic, strong ) id< MTLDevice > device;
 @property ( nonatomic, strong ) id< MTLCommandQueue > commandQueue;
 @end
 
 @implementation antisocial
-
-static bool is_present = true;
 
 - ( instancetype )initWithNibName:( nullable NSString* )nibNameOrNil bundle:( nullable NSBundle* )nibBundleOrNil
 {
@@ -34,12 +68,14 @@ static bool is_present = true;
 
     ImGui_ImplMetal_Init( _device );
 
+    g_ctx->interface->init( );
+
     return self;
 }
 
 + ( void )set_presented:( BOOL )value
 {
-    is_present = value;
+    g_ctx->is_presented = value;
 }
 
 - ( MTKView* )mtkView
@@ -123,17 +159,26 @@ static bool is_present = true;
 
     id< MTLCommandBuffer > command_buffer = [self.commandQueue commandBuffer];
 
-    [self.view setUserInteractionEnabled:is_present];
+    [self.view setUserInteractionEnabled:g_ctx->is_presented];
+
+    static dispatch_once_t init_token;
+    dispatch_once( &init_token, ^{
+      memory_manager::base = memory_manager::get_base( );
+      if ( !memory_manager::base )
+          init_token = 0;
+    } );
 
     MTLRenderPassDescriptor* render_pass_descriptor = view.currentRenderPassDescriptor;
     if ( command_buffer != nil )
     {
-        id< MTLRenderCommandEncoder > render_encoder = [command_buffer renderCommandEncoderWithDescriptor:command_buffer];
+        id< MTLRenderCommandEncoder > render_encoder = [command_buffer renderCommandEncoderWithDescriptor:render_pass_descriptor];
         [render_encoder pushDebugGroup:@"ImGui Jane"];
 
-        ImGui_ImplMetal_NewFrame( command_buffer );
+        ImGui_ImplMetal_NewFrame( render_pass_descriptor );
 
         ImGui::NewFrame( );
+
+        g_ctx->interface->render( );
 
         ImGui::Render( );
 
