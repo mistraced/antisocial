@@ -2,6 +2,8 @@
 
 #include "game/sdk/structures/vec3.hpp"
 
+#include "config/data.hpp"
+
 class c_interface;
 class c_il2cpp_api;
 class c_fonts;
@@ -27,6 +29,7 @@ struct globals_t
     c_il2cpp_api* il2cpp;
     c_fonts* fonts;
 
+    cfg_t cfg;
     features_t features;
 
     bool is_presented = false;
