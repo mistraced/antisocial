@@ -19,6 +19,9 @@
 #import "globals.hpp"
 #import "interface/interface.hpp"
 
+#import "game/sdk/il2cpp/il2cpp.hpp"
+#import "game/entities/entities.hpp"
+
 #pragma region cpp_defs
 globals_t* g_ctx = new globals_t( );
 
@@ -69,6 +72,9 @@ void memory_manager::hook( uintptr_t address, void* modified, void** original )
     ImGui_ImplMetal_Init( _device );
 
     g_ctx->interface->init( );
+    g_ctx->features.init( );
+
+    g_ctx->interface->m_queue.push_back( [] { c_players_database::get( )->update( ); } );
 
     return self;
 }
@@ -111,17 +117,17 @@ void memory_manager::hook( uintptr_t address, void* modified, void** original )
     ImGuiIO& io = ImGui::GetIO( );
     io.MousePos = ImVec2( touch_location.x, touch_location.y );
 
-    BOOL hasActiveTouch = NO;
+    BOOL has_active_touch = NO;
     for ( UITouch* touch in event.allTouches )
     {
         if ( touch.phase != UITouchPhaseEnded && touch.phase != UITouchPhaseCancelled )
         {
-            hasActiveTouch = YES;
+            has_active_touch = YES;
             break;
         }
     }
 
-    io.MouseDown[ 0 ] = hasActiveTouch;
+    io.MouseDown[ 0 ] = has_active_touch;
 }
 
 - ( void )touchesBegan:( NSSet< UITouch* >* )touches withEvent:( UIEvent* )event
@@ -163,6 +169,8 @@ void memory_manager::hook( uintptr_t address, void* modified, void** original )
 
     static dispatch_once_t init_token;
     dispatch_once( &init_token, ^{
+      g_ctx->il2cpp->initialize( );
+
       memory_manager::base = memory_manager::get_base( );
       if ( !memory_manager::base )
           init_token = 0;

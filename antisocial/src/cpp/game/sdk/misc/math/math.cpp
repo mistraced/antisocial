@@ -1,0 +1,43 @@
+#include "math.hpp"
+
+#include "../../unity/camera/camera.hpp"
+
+w2s_t math::world_to_screen( vec3_t position )
+{
+    c_camera* const main_camera = c_camera::get_main( );
+    if ( !main_camera )
+        return w2s_t { ImVec2 { 0, 0 }, 0 };
+
+    vec3_t world_point = main_camera->world_to_viewport( position, 2 );
+
+    world_point.x = static_cast< int >( ImGui::GetIO( ).DisplaySize.x * world_point.x );
+    world_point.y = static_cast< int >( ImGui::GetIO( ).DisplaySize.y - world_point.y * ImGui::GetIO( ).DisplaySize.y );
+
+    return w2s_t { ImVec2 { world_point.x, world_point.y }, world_point.z > 0 };
+}
+
+ImRect math::calculate_player_ent_bbox( vec3_t position, float height )
+{
+    ImVec2 const top = world_to_screen( vec3_t( position.x, position.y + height, position.z ) ).position;
+    ImVec2 const bottom = world_to_screen( vec3_t( position.x, position.y - 0.15f, position.z ) ).position;
+
+    float calc_top = top.x;
+    float calc_bottom = bottom.x;
+    if ( top.x > bottom.x )
+    {
+        calc_top = bottom.x;
+        calc_bottom = top.x;
+    }
+
+    float const width = abs( ( top.y - bottom.y ) / 2.f ); // abs((top.y - bottom.y) / 3.75f)
+
+    ImVec2 const min = { calc_top - width / 2 - 1, top.y - 1 };
+
+    ImRect const bounds = {
+        { static_cast< int >( min.x ),
+          static_cast< int >( min.y ) },
+        { static_cast< int >( ( calc_bottom + width / 2 + 1 ) ),
+          static_cast< int >( ( bottom.y + 1 ) ) } };
+
+    return bounds;
+}
