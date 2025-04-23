@@ -5,6 +5,9 @@
 #include "../../unity/unity.hpp"
 
 #include "../photon_player/photon_player.hpp"
+#include "../biped_map/biped_map.hpp"
+#include "../aiming_data/aiming_data.hpp"
+#include "../occlusion_controller/occlusion_controller.hpp"
 
 #include "globals.hpp"
 
@@ -49,4 +52,28 @@ std::string c_player_controller::get_weapon_name( ) const
         return "-";
 
     return ( *reinterpret_cast< unity::string** >( parameters + 0x20 ) )->to_cpp_string( );
+}
+
+c_biped_map* c_player_controller::biped_map( ) const
+{
+    return *reinterpret_cast< c_biped_map** >( reinterpret_cast< uintptr_t >( this ) + 0xD0 );
+}
+
+c_aiming_data* c_player_controller::aiming_data( ) const
+{
+    uintptr_t const aim_controller = *reinterpret_cast< uintptr_t* >( reinterpret_cast< uintptr_t >( this ) + 0x90 );
+    if ( !aim_controller )
+        return nullptr;
+
+    return *reinterpret_cast< c_aiming_data** >( aim_controller + 0x90 );
+}
+
+void c_player_controller::fix_occlusion( ) const
+{
+    if ( auto* const occlusion_controller = *reinterpret_cast< c_occlusion_controller** >( reinterpret_cast< uintptr_t >( this ) + 0xC0 ); occlusion_controller )
+    {
+        occlusion_controller->set_visible( true );
+        occlusion_controller->set_enabled( false );
+        occlusion_controller->set_in_area( false );
+    }
 }

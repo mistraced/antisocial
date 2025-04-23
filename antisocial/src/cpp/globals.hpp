@@ -9,10 +9,14 @@ class c_il2cpp_api;
 class c_fonts;
 
 class c_esp;
+class c_ragebot;
+
+class c_features_manager;
 
 struct features_t
 {
     c_esp* esp;
+    c_ragebot* ragebot;
 
     void init( );
 
@@ -31,6 +35,8 @@ struct globals_t
 
     cfg_t cfg;
     features_t features;
+
+    c_features_manager* features_mgr;
 
     bool is_presented = false;
 };

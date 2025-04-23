@@ -8,6 +8,8 @@
 #include <string>
 
 class c_photon_player;
+class c_biped_map;
+class c_aiming_data;
 
 class c_player_controller : public c_component
 {
@@ -21,4 +23,7 @@ public:
     int get_health( ) const;
     vec3_t get_position( ) const;
     std::string get_weapon_name( ) const;
+    c_biped_map* biped_map( ) const;
+    c_aiming_data* aiming_data( ) const;
+    void fix_occlusion( ) const;
 };

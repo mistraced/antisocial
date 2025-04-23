@@ -24,6 +24,8 @@ void c_main_form::render( )
         ImGui::Checkbox( "esp weapon", &g_ctx->cfg.esp_weapon );
         ImGui::Checkbox( "esp money", &g_ctx->cfg.esp_money );
 
+        ImGui::Checkbox( "ragebot test", &g_ctx->cfg.ragebot_test );
+
         ImGui::End( );
     }
 }

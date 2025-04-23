@@ -20,4 +20,5 @@ public:
     std::vector< c_player_controller* > m_players;
 
     void update( );
+    c_player_controller* get_ragebot_entity( ) const;
 };
