@@ -2,6 +2,7 @@
 
 #include "interface/interface.hpp"
 #include "game/sdk/il2cpp/il2cpp.hpp"
+#include "fonts/fonts.hpp"
 
 #include "game/features/visual/esp/esp.hpp"
 
@@ -14,4 +15,5 @@ globals_t::globals_t( )
 {
     interface = c_interface::get( );
     il2cpp = c_il2cpp_api::get( );
+    fonts = c_fonts::get( );
 }

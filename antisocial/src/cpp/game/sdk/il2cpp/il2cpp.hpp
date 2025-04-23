@@ -36,6 +36,9 @@ public:
     il2cpp_functions_t functions;
 
 public:
+    c_il2cpp_api( ) = default;
+    ~c_il2cpp_api( ) = default;
+
     void initialize( );
 
     il2cpp_image* get_img_to_asm( const char* assembly );

@@ -8,6 +8,9 @@
 void c_interface::init( )
 {
     forms::main.init( );
+
+    if ( m_initializer )
+        m_initializer( );
 }
 
 void c_interface::render( )

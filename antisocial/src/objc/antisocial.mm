@@ -22,6 +22,8 @@
 #import "game/sdk/il2cpp/il2cpp.hpp"
 #import "game/entities/entities.hpp"
 
+#import "fonts/fonts.hpp"
+
 #pragma region cpp_defs
 globals_t* g_ctx = new globals_t( );
 
@@ -68,6 +70,8 @@ void memory_manager::hook( uintptr_t address, void* modified, void** original )
     ImGui::CreateContext( );
 
     ImGui::StyleColorsClassic( );
+
+    g_ctx->fonts->initialize( );
 
     ImGui_ImplMetal_Init( _device );
 

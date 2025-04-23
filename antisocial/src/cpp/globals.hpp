@@ -4,6 +4,7 @@
 
 class c_interface;
 class c_il2cpp_api;
+class c_fonts;
 
 class c_esp;
 
@@ -24,6 +25,7 @@ struct globals_t
 
     c_interface* interface;
     c_il2cpp_api* il2cpp;
+    c_fonts* fonts;
 
     features_t features;
 
