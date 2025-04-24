@@ -13,7 +13,6 @@
 #import "antisocial.h"
 #import "util/backend/imgui_impl_metal.h"
 
-#import "dobby/dobby.hpp"
 #import "memory_manager/memory_manager.hpp"
 
 #import "globals.hpp"
@@ -23,6 +22,16 @@
 #import "game/entities/entities.hpp"
 
 #import "fonts/fonts.hpp"
+
+#import "game/hooks/hooks.hpp"
+
+#if IS_IPA
+#import "dobby/dobby.hpp"
+#import "dobby/dependencies/h5gg_hook.h"
+#import "dobby/dependencies/mem.h"
+#else
+#import <substrate.h>
+#endif
 
 #pragma region cpp_defs
 globals_t* g_ctx = new globals_t( );
@@ -43,9 +52,27 @@ uintptr_t memory_manager::get_base( )
     return 0;
 }
 
-void memory_manager::hook( uintptr_t address, void* modified, void** original )
+#if IS_IPA
+#define static_inline_hook( x, y, z )                                                                                              \
+    NSString* result_##y = StaticInlineHookPatch( "Frameworks/UnityFramework.framework/UnityFramework", x, nullptr, ( void* ) y ); \
+    if ( result_##y )                                                                                                              \
+    {                                                                                                                              \
+        NSLog( @"hk result: %s", result_##y.UTF8String );                                                                          \
+        void* result = StaticInlineHookFunction( "Frameworks/UnityFramework.framework/UnityFramework", x, ( void* ) y );           \
+        NSLog( @"hk result %p", result );                                                                                          \
+        *( void** ) ( z ) = ( void* ) result;                                                                                      \
+    }
+#endif
+
+void memory_manager::hook( uintptr_t relative, void* hk, void** og )
 {
-    DobbyHook( reinterpret_cast< void* >( address ), modified, original );
+    // relative cause ipa hooks finds it by itself
+#if IS_IPA
+    static_inline_hook( relative, hk, og );
+#else
+    // dobby is fucked up
+    MSHookFunction( reinterpret_cast< void* >( memory_manager::get_absolute( relative ) ), hk, og );
+#endif
 }
 #pragma endregion
 
@@ -173,11 +200,13 @@ void memory_manager::hook( uintptr_t address, void* modified, void** original )
 
     static dispatch_once_t init_token;
     dispatch_once( &init_token, ^{
-      g_ctx->il2cpp->initialize( );
-
       memory_manager::base = memory_manager::get_base( );
       if ( !memory_manager::base )
           init_token = 0;
+
+      g_ctx->il2cpp->initialize( );
+
+      g_ctx->hooks->hook( );
     } );
 
     MTLRenderPassDescriptor* render_pass_descriptor = view.currentRenderPassDescriptor;

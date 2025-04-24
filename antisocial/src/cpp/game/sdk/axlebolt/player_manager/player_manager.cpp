@@ -44,11 +44,11 @@ std::vector< c_player_controller* > c_player_manager::get_players( ) const
         return { };
 
     c_player_controller* const local = get_local_player( );
-    if ( !reinterpret_cast< uintptr_t >( local ) )
+    if ( !reinterpret_cast< uintptr_t >( local ) || !local->alive( ) )
         return { };
 
     auto const list = *reinterpret_cast< unity::dictionary< int, c_player_controller* >** >( reinterpret_cast< uintptr_t >( this ) + 0x20 );
-    if ( !list )
+    if ( !list || list->get_size( ) < 1 )
         return { };
 
     for ( size_t idx { 0 }; idx < list->get_size( ); idx++ )
@@ -68,5 +68,5 @@ std::vector< c_player_controller* > c_player_manager::get_players( ) const
             ret.push_back( player );
     }
 
-    return std::move( ret );
+    return ret;
 }

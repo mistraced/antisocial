@@ -5,14 +5,20 @@
 #include "fonts/fonts.hpp"
 
 #include "game/features/visual/esp/esp.hpp"
+#include "game/features/visual/thirdperson/thirdperson.hpp"
 #include "game/features/ragebot/ragebot.hpp"
+#include "game/features/movement/bunnyhop/bunnyhop.hpp"
 
 #include "game/features/features.hpp"
+
+#include "game/hooks/hooks.hpp"
 
 void features_t::init( )
 {
     esp = c_esp::get( );
     ragebot = c_ragebot::get( );
+    thirdperson = c_thirdperson::get( );
+    bunnyhop = c_bunnyhop::get( );
 }
 
 globals_t::globals_t( )
@@ -22,4 +28,6 @@ globals_t::globals_t( )
     fonts = c_fonts::get( );
 
     features_mgr = c_features_manager::get( );
+
+    hooks = c_hooks::get( );
 }

@@ -18,7 +18,7 @@ c_photon_player* c_player_controller::photon_player( ) const
 
 team_t c_player_controller::get_team( ) const
 {
-    return *reinterpret_cast< team_t* >( reinterpret_cast< uintptr_t >( this ) + 0x49 );
+    return static_cast< team_t >( photon_player( )->get_property< int >( "team" ) );
 }
 
 int c_player_controller::get_health( ) const
@@ -29,7 +29,7 @@ int c_player_controller::get_health( ) const
 bool c_player_controller::alive( ) const
 {
     // TODO
-    return reinterpret_cast< uintptr_t >( this ) && photon_player( ) && get_health( ) > 0;
+    return reinterpret_cast< uintptr_t >( this ) && photon_player( ) && biped_map( ) && get_health( ) > 0;
 }
 
 vec3_t c_player_controller::get_position( ) const
@@ -76,4 +76,21 @@ void c_player_controller::fix_occlusion( ) const
         occlusion_controller->set_enabled( false );
         occlusion_controller->set_in_area( false );
     }
+}
+
+void c_player_controller::set_tps_view( ) const
+{
+    static auto fn = reinterpret_cast< void ( * )( uintptr_t ) >( g_ctx->il2cpp->get_method_pointer( "Axlebolt.Standoff.Player", "PlayerController", "SetTPSView", 0 ) );
+    fn( reinterpret_cast< uintptr_t >( this ) );
+};
+
+void c_player_controller::set_fps_view( ) const
+{
+    static auto fn = reinterpret_cast< void ( * )( uintptr_t ) >( g_ctx->il2cpp->get_method_pointer( "Axlebolt.Standoff.Player", "PlayerController", "SetFPSView", 0 ) );
+    fn( reinterpret_cast< uintptr_t >( this ) );
+};
+
+c_transform* c_player_controller::main_camera_holder( ) const
+{
+    return *reinterpret_cast< c_transform** >( reinterpret_cast< uintptr_t >( this ) + 0x20 );
 }

@@ -17,7 +17,7 @@ T c_photon_player::get_property( const std::string& key ) const
     if ( !reinterpret_cast< uintptr_t >( this ) )
         return { };
 
-    unity::dictionary< unity::string*, il2cpp_object* >* properties = *reinterpret_cast< unity::dictionary< unity::string*, il2cpp_object* >** >( reinterpret_cast< uintptr_t >( this ) + 0x30 );
+    auto* const properties = *reinterpret_cast< unity::dictionary< unity::string*, il2cpp_object* >** >( reinterpret_cast< uintptr_t >( this ) + 0x30 );
 
     if ( !properties || properties->get_size( ) < 1 )
         return { };

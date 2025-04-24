@@ -1,6 +1,13 @@
 #ifndef dobby_h
 #define dobby_h
 
+// obfuscated interface
+#if 0
+#define DobbyBuildVersion c343f74888dffad84d9ad08d9c433456
+#define DobbyHook c8dc3ffa44f22dbd10ccae213dd8b1f8
+#define DobbyInstrument b71e27bca2c362de90c1034f19d839f9
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -8,87 +15,102 @@ extern "C"
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <sys/types.h>
+
+    void log_set_level( int level );
+    void log_switch_to_syslog( );
+    void log_switch_to_file( const char* path );
+
+    typedef enum
+    {
+        kMemoryOperationSuccess,
+        kMemoryOperationError,
+        kNotSupportAllocateExecutableMemory,
+        kNotEnough,
+        kNone
+    } MemoryOperationError;
+
+#define PLATFORM_INTERFACE_CODE_PATCH_TOOL_H
+    MemoryOperationError CodePatch( void* address, uint8_t* buffer, uint32_t buffer_size );
 
     typedef uintptr_t addr_t;
     typedef uint32_t addr32_t;
     typedef uint64_t addr64_t;
 
-    typedef void* asm_func_t;
+#if defined( __arm64__ ) || defined( __aarch64__ )
 
-#if defined( __arm__ )
-    typedef struct
+#define ARM64_TMP_REG_NDX_0 17
+
+    // float register
+    typedef union _FPReg
     {
-        uint32_t dummy_0;
-        uint32_t dummy_1;
+        __int128_t q;
+        struct
+        {
+            double d1;
+            double d2;
+        } d;
+        struct
+        {
+            float f1;
+            float f2;
+            float f3;
+            float f4;
+        } f;
+    } FPReg;
 
-        uint32_t dummy_2;
-        uint32_t sp;
+    // register context
+    typedef struct _RegisterContext
+    {
+        uint64_t dmmpy_0; // dummy placeholder
+        uint64_t sp;
 
+        uint64_t dmmpy_1; // dummy placeholder
         union
         {
-            uint32_t r[ 13 ];
+            uint64_t x[ 29 ];
             struct
             {
-                uint32_t r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12;
+                uint64_t x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22,
+                    x23, x24, x25, x26, x27, x28;
             } regs;
         } general;
 
-        uint32_t lr;
-    } DobbyRegisterContext;
-#elif defined( __arm64__ ) || defined( __aarch64__ )
-#define ARM64_TMP_REG_NDX_0 17
+        uint64_t fp;
+        uint64_t lr;
 
-typedef union _FPReg
+        union
+        {
+            FPReg q[ 32 ];
+            struct
+            {
+                FPReg q0, q1, q2, q3, q4, q5, q6, q7;
+                // [!!! READ ME !!!]
+                // for Arm64, can't access q8 - q31, unless you enable full floating-point register pack
+                FPReg q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29,
+                    q30, q31;
+            } regs;
+        } floating;
+    } RegisterContext;
+#elif defined( __arm__ )
+typedef struct _RegisterContext
 {
-    __int128_t q;
-    struct
-    {
-        double d1;
-        double d2;
-    } d;
-    struct
-    {
-        float f1;
-        float f2;
-        float f3;
-        float f4;
-    } f;
-} FPReg;
+    uint32_t dummy_0;
+    uint32_t dummy_1;
 
-// register context
-typedef struct
-{
-    uint64_t dmmpy_0; // dummy placeholder
-    uint64_t sp;
+    uint32_t dummy_2;
+    uint32_t sp;
 
-    uint64_t dmmpy_1; // dummy placeholder
     union
     {
-        uint64_t x[ 29 ];
+        uint32_t r[ 13 ];
         struct
         {
-            uint64_t x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22,
-                x23, x24, x25, x26, x27, x28;
+            uint32_t r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12;
         } regs;
     } general;
 
-    uint64_t fp;
-    uint64_t lr;
-
-    union
-    {
-        FPReg q[ 32 ];
-        struct
-        {
-            FPReg q0, q1, q2, q3, q4, q5, q6, q7;
-            // [!!! READ ME !!!]
-            // for Arm64, can't access q8 - q31, unless you enable full floating-point register pack
-            FPReg q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26, q27, q28, q29,
-                q30, q31;
-        } regs;
-    } floating;
-} DobbyRegisterContext;
+    uint32_t lr;
+} RegisterContext;
 #elif defined( _M_IX86 ) || defined( __i386__ )
 typedef struct _RegisterContext
 {
@@ -106,10 +128,13 @@ typedef struct _RegisterContext
         } regs;
     } general;
 
-} DobbyRegisterContext;
+} RegisterContext;
 #elif defined( _M_X64 ) || defined( __x86_64__ )
-typedef struct
+typedef struct _RegisterContext
 {
+    uint64_t dummy_0;
+    uint64_t rsp;
+
     union
     {
         struct
@@ -118,56 +143,97 @@ typedef struct
         } regs;
     } general;
 
-    uint64_t dummy_0;
+    uint64_t dummy_1;
     uint64_t flags;
-    uint64_t ret;
-} DobbyRegisterContext;
+} RegisterContext;
 #endif
 
-#define install_hook_name( name, fn_ret_t, fn_args_t... )                                \
-    static fn_ret_t fake_##name( fn_args_t );                                            \
-    static fn_ret_t ( *orig_##name )( fn_args_t );                                       \
-    /* __attribute__((constructor)) */ static void install_hook_##name( void* sym_addr ) \
-    {                                                                                    \
-        DobbyHook( sym_addr, ( void* ) fake_##name, ( void** ) &orig_##name );           \
-        return;                                                                          \
-    }                                                                                    \
-    fn_ret_t fake_##name( fn_args_t )
+#define RT_FAILED -1
+#define RT_SUCCESS 0
+    typedef enum _RetStatus
+    {
+        RS_FAILED = -1,
+        RS_SUCCESS = 0
+    } RetStatus;
 
-    // memory code patch
-    int DobbyCodePatch( void* address, uint8_t* buffer, uint32_t buffer_size );
+    typedef struct _HookEntryInfo
+    {
+        int hook_id;
+        union
+        {
+            void* target_address;
+            void* function_address;
+            void* instruction_address;
+        };
+    } HookEntryInfo;
 
-    // function inline hook
-    int DobbyHook( void* address, void* fake_func, void** out_origin_func );
+// DobbyWrap <==> DobbyInstrument, so use DobbyInstrument instead of DobbyWrap
+#if 0
+// wrap function with pre_call and post_call
+typedef void (*PreCallTy)(RegisterContext *ctx, const HookEntryInfo *info);
+typedef void (*PostCallTy)(RegisterContext *ctx, const HookEntryInfo *info);
+int DobbyWrap(void *function_address, PreCallTy pre_call, PostCallTy post_call);
+#endif
 
-    // dynamic binary instruction instrument
-    // for Arm64, can't access q8 - q31, unless enable full floating-point register pack
-    typedef void ( *dobby_instrument_callback_t )( void* address, DobbyRegisterContext* ctx );
-    int DobbyInstrument( void* address, dobby_instrument_callback_t pre_handler );
+    // return dobby build date
+    const char* DobbyBuildVersion( );
 
-    // destroy and restore code patch
+    // replace function
+    int DobbyHook( void* address, void* replace_call, void** origin_call );
+
+    // dynamic binary instrument for instruction
+    // [!!! READ ME !!!]
+    // for Arm64, can't access q8 - q31, unless you enable full floating-point register pack
+    typedef void ( *DBICallTy )( RegisterContext* ctx, const HookEntryInfo* info );
+    int DobbyInstrument( void* address, DBICallTy dbi_call );
+
+    // destory and restore hook
     int DobbyDestroy( void* address );
 
-    const char* DobbyGetVersion( );
-
-    // symbol resolver
+    // iterate symbol table and find symbol
     void* DobbySymbolResolver( const char* image_name, const char* symbol_name );
 
-    // import table replace
-    int DobbyImportTableReplace( char* image_name, char* symbol_name, void* fake_func, void** orig_func );
+    // global offset table
+    int DobbyGlobalOffsetTableReplace( char* image_name, char* symbol_name, void* fake_func, void** orig_func );
 
-    // for arm, Arm64, try use b xxx instead of ldr absolute indirect branch
-    // for x86, x64, always use absolute indirect jump
-    void dobby_set_near_trampoline( bool enable );
+// [!!! READ ME !!!]
+// for arm, Arm64, dobby will use b xxx instead of ldr absolute indirect branch
+// for x64, dobby always use absolute indirect jump
+#if defined( __arm__ ) || defined( __arm64__ ) || defined( __aarch64__ ) || defined( _M_X64 ) || defined( __x86_64__ )
+    void dobby_enable_near_branch_trampoline( );
+    void dobby_disable_near_branch_trampoline( );
+#endif
 
-    // register callback for alloc near code block
-    typedef addr_t ( *dobby_alloc_near_code_callback_t )( uint32_t size, addr_t pos, size_t range );
-    void dobby_register_alloc_near_code_callback( dobby_alloc_near_code_callback_t handler );
-
-    void dobby_set_options( bool enable_near_trampoline, dobby_alloc_near_code_callback_t alloc_near_code_callback );
+    // register linker load image callback
+    typedef void ( *linker_load_callback_t )( const char* image_name, void* handle );
+    void dobby_register_image_load_callback( linker_load_callback_t func );
 
 #ifdef __cplusplus
 }
 #endif
+
+typedef struct
+{
+    uint64_t hook_vaddr;
+    uint64_t hook_size;
+    uint64_t code_vaddr;
+    uint64_t code_size;
+
+    uint64_t patched_vaddr;
+    uint64_t original_vaddr;
+    uint64_t instrument_vaddr;
+
+    uint64_t patch_size;
+    uint64_t patch_hash;
+
+    void* target_replace;
+    void* instrument_handler;
+} StaticInlineHookBlock;
+
+int dobby_create_instrument_bridge( void* targetData );
+
+bool dobby_static_inline_hook( StaticInlineHookBlock* hookBlock, StaticInlineHookBlock* hookBlockRVA, uint64_t funcRVA,
+                               void* funcData, uint64_t targetRVA, void* targetData, uint64_t InstrumentBridgeRVA,
+                               void* patchBytes, int patchSize );
 
 #endif

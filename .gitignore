@@ -4,3 +4,5 @@
 packages/
 .vscode/
 install.sh
+build.sh
+build_install.sh

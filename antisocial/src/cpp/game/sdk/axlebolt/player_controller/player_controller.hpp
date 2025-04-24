@@ -10,6 +10,7 @@
 class c_photon_player;
 class c_biped_map;
 class c_aiming_data;
+class c_transform;
 
 class c_player_controller : public c_component
 {
@@ -26,4 +27,7 @@ public:
     c_biped_map* biped_map( ) const;
     c_aiming_data* aiming_data( ) const;
     void fix_occlusion( ) const;
+    void set_tps_view( ) const;
+    void set_fps_view( ) const;
+    c_transform* main_camera_holder( ) const;
 };

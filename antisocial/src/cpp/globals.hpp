@@ -10,13 +10,19 @@ class c_fonts;
 
 class c_esp;
 class c_ragebot;
+class c_thirdperson;
+class c_bunnyhop;
 
 class c_features_manager;
+
+class c_hooks;
 
 struct features_t
 {
     c_esp* esp;
     c_ragebot* ragebot;
+    c_thirdperson* thirdperson;
+    c_bunnyhop* bunnyhop;
 
     void init( );
 
@@ -37,6 +43,8 @@ struct globals_t
     features_t features;
 
     c_features_manager* features_mgr;
+
+    c_hooks* hooks;
 
     bool is_presented = false;
 };
