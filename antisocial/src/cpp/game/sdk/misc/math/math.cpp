@@ -1,6 +1,7 @@
 #include "math.hpp"
 
 #include "../../unity/camera/camera.hpp"
+#include "../../unity/physics/physics.hpp"
 
 w2s_t math::world_to_screen( vec3_t position )
 {
@@ -40,4 +41,15 @@ ImRect math::calculate_player_ent_bbox( vec3_t position, float height )
           static_cast< int >( ( bottom.y + 1 ) ) } };
 
     return bounds;
+}
+
+bool math::check_surface_by_type( const int type )
+{
+    return type == surface_type::cardboard ||
+           type == surface_type::thin_wood ||
+           type == surface_type::glass ||
+           type == surface_type::plaster ||
+           type == surface_type::wood ||
+           type == surface_type::water ||
+           type == surface_type::character;
 }

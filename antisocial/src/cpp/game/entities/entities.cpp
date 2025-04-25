@@ -6,6 +6,9 @@
 #include "game/sdk/unity/physics/physics.hpp"
 #include "game/sdk/unity/transform/transform.hpp"
 #include "game/sdk/unity/camera/camera.hpp"
+#include "game/sdk/unity/physics/physics.hpp"
+#include "game/sdk/unity/unity.hpp"
+#include "game/sdk/misc/math/math.hpp"
 
 #include "game/features/features.hpp"
 
@@ -37,6 +40,8 @@ void c_players_database::update( )
         clear_data( );
         return;
     }
+
+    m_local_player->fix_occlusion( );
 
     m_players = player_manager->get_players( );
 
@@ -73,7 +78,35 @@ c_player_controller* c_players_database::get_ragebot_entity( ) const
         if ( !head )
             continue;
 
-        if ( c_physics::linecast( view_position, head->get_position( ), 16384 ) )
+        bool const visible = !c_physics::linecast( view_position, head->get_position( ), 16384 );
+
+        bool const wallbang = [ & ]( ) -> bool {
+            if ( !c::get< bool >( g_ctx->cfg.ragebot_autowall ) )
+                return false;
+
+            raycast_hit_t hit;
+            if ( !c_physics::linecast( view_position, head->get_position( ), &hit, 16384 ) )
+                return false;
+
+            c_component* const collider = c_physics::raycast_get_collider( &hit );
+
+            if ( !collider )
+                return false;
+
+            unity::string* const surface_tag = collider->get_tag( );
+            if ( !surface_tag )
+                return false;
+
+            std::string const surface_name = surface_tag->to_cpp_string( );
+            int const surface_type = c_physics::surface_from_tag( surface_tag );
+
+            if ( math::check_surface_by_type( surface_type ) && surface_type != surface_mark_trigger )
+                return true;
+
+            return false;
+        }( );
+
+        if ( !visible && !wallbang )
             continue;
 
         return entity;

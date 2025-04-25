@@ -15,4 +15,5 @@ namespace math
 {
     extern w2s_t world_to_screen( vec3_t position );
     extern ImRect calculate_player_ent_bbox( vec3_t position, float height );
+    extern bool check_surface_by_type( const int type );
 }

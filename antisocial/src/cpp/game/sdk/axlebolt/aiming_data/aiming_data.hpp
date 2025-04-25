@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 class c_aiming_data
 {
 public:

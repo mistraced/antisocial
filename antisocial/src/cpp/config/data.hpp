@@ -17,8 +17,13 @@ struct cfg_t
     declare_variable( bool, ragebot_silent, false );
     declare_variable( bool, ragebot_triggerbot, false );
     declare_variable( bool, ragebot_antiaim, false );
-    declare_variable( vec3_t, antiaim_rotation, vec3_t( 0, 0, 0 ) );
     declare_variable( vec3_t, antiaim_substitute, vec3_t( 0, 0, 0 ) );
+    declare_variable( vec3_t, antiaim_rotation, vec3_t( 0, 0, 0 ) );
+    declare_variable( bool, ragebot_head, true );
+    declare_variable( bool, ragebot_body, false );
+    declare_variable( bool, ragebot_arms, false );
+    declare_variable( bool, ragebot_legs, false );
+    declare_variable( bool, ragebot_autowall, false );
 
     declare_variable( bool, misc_thirdperson, false );
 
