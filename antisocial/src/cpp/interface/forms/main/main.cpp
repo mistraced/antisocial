@@ -31,8 +31,9 @@ void c_main_form::render( )
         ImGui::Checkbox( "ragebot enabled", &c::get< bool >( g_ctx->cfg.ragebot_enabled ) );
         ImGui::Checkbox( "ragebot silent", &c::get< bool >( g_ctx->cfg.ragebot_silent ) );
         ImGui::Checkbox( "ragebot triggerbot", &c::get< bool >( g_ctx->cfg.ragebot_triggerbot ) );
-        ImGui::Checkbox( "ragebot antiaim", &c::get< bool >( g_ctx->cfg.ragebot_antiaim ) );
         ImGui::Checkbox( "ragebot autowall", &c::get< bool >( g_ctx->cfg.ragebot_autowall ) );
+
+        ImGui::Checkbox( "ragebot antiaim", &c::get< bool >( g_ctx->cfg.ragebot_antiaim ) );
 
         ImGui::SliderFloat( "antiaim sub x", &c::get< vec3_t >( g_ctx->cfg.antiaim_substitute ).x, -180, 180 );
         ImGui::SliderFloat( "antiaim sub y", &c::get< vec3_t >( g_ctx->cfg.antiaim_substitute ).y, -180, 180 );
@@ -48,6 +49,7 @@ void c_main_form::render( )
         ImGui::Checkbox( "ragebot legs", &c::get< bool >( g_ctx->cfg.ragebot_legs ) );
 
         ImGui::Checkbox( "3rd person", &c::get< bool >( g_ctx->cfg.misc_thirdperson ) );
+        ImGui::Checkbox( "peek assist", &c::get< bool >( g_ctx->cfg.misc_peek_assist ) );
 
         ImGui::Checkbox( "bunnyhop", &c::get< bool >( g_ctx->cfg.movement_bunnyhop ) );
 

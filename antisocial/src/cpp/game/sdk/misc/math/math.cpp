@@ -53,3 +53,25 @@ bool math::check_surface_by_type( const int type )
            type == surface_type::water ||
            type == surface_type::character;
 }
+
+void math::draw_3d_dotted_circle( vec3_t pos, float radius, ImColor color, float segments )
+{
+    for ( float i = 0; i < segments; i++ )
+    {
+        if ( i < segments )
+        {
+            vec3_t const pos1 = vec3_t( pos.x + radius * cos( i * ( PI * 2 ) / segments ), pos.y, pos.z + radius * sin( i * ( PI * 2 ) / segments ) );
+            vec3_t const pos2 = vec3_t( pos.x + radius * cos( ( i + 1 ) * ( PI * 2 ) / segments ), pos.y, pos.z + radius * sin( ( i + 1 ) * ( PI * 2 ) / segments ) );
+
+            vec3_t const midpoint = vec3_t(
+                ( pos1.x + pos2.x ) / 2.0f,
+                ( pos1.y + pos2.y ) / 2.0f,
+                ( pos1.z + pos2.z ) / 2.0f );
+
+            w2s_t const w2s = world_to_screen( midpoint );
+
+            if ( w2s.check )
+                ImGui::GetBackgroundDrawList( )->AddCircleFilled( w2s.position, 3, color, 120 );
+        }
+    }
+}

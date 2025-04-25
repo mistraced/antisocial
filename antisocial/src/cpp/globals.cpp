@@ -8,6 +8,7 @@
 #include "game/features/visual/thirdperson/thirdperson.hpp"
 #include "game/features/ragebot/ragebot.hpp"
 #include "game/features/movement/bunnyhop/bunnyhop.hpp"
+#include "game/features/misc/peek_assist/peek_assist.hpp"
 
 #include "game/features/features.hpp"
 
@@ -19,6 +20,7 @@ void features_t::init( )
     ragebot = c_ragebot::get( );
     thirdperson = c_thirdperson::get( );
     bunnyhop = c_bunnyhop::get( );
+    peek_assist = c_peek_assist::get( );
 }
 
 globals_t::globals_t( )

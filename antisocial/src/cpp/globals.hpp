@@ -12,6 +12,7 @@ class c_esp;
 class c_ragebot;
 class c_thirdperson;
 class c_bunnyhop;
+class c_peek_assist;
 
 class c_features_manager;
 
@@ -23,6 +24,7 @@ struct features_t
     c_ragebot* ragebot;
     c_thirdperson* thirdperson;
     c_bunnyhop* bunnyhop;
+    c_peek_assist* peek_assist;
 
     void init( );
 

@@ -14,6 +14,7 @@
 
 #include "game/features/visual/thirdperson/thirdperson.hpp"
 #include "game/features/visual/esp/esp.hpp"
+#include "game/features/misc/peek_assist/peek_assist.hpp"
 
 #include "game/features/ragebot/ragebot.hpp"
 
@@ -25,6 +26,7 @@ void c_players_database::update( )
         m_players.clear( );
         m_local_player = nullptr;
         g_ctx->features.ragebot->m_target = nullptr;
+        g_ctx->features.peek_assist->m_peeking = false;
     };
 
     auto* const player_manager = c_player_manager::get_instance( );

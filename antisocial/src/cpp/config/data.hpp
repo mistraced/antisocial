@@ -26,6 +26,7 @@ struct cfg_t
     declare_variable( bool, ragebot_autowall, false );
 
     declare_variable( bool, misc_thirdperson, false );
+    declare_variable( bool, misc_peek_assist, false );
 
     declare_variable( bool, movement_bunnyhop, false );
 };
