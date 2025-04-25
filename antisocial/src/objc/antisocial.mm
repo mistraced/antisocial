@@ -25,7 +25,9 @@
 
 #import "game/hooks/hooks.hpp"
 
-#if IS_IPA
+#define is_ipa
+
+#if is_ipa
 #import "dobby/dobby.hpp"
 #import "dobby/dependencies/h5gg_hook.h"
 #import "dobby/dependencies/mem.h"
@@ -52,7 +54,7 @@ uintptr_t memory_manager::get_base( )
     return 0;
 }
 
-#if IS_IPA
+#if is_ipa
 #define static_inline_hook( x, y, z )                                                                                              \
     NSString* result_##y = StaticInlineHookPatch( "Frameworks/UnityFramework.framework/UnityFramework", x, nullptr, ( void* ) y ); \
     if ( result_##y )                                                                                                              \
@@ -67,7 +69,7 @@ uintptr_t memory_manager::get_base( )
 void memory_manager::hook( uintptr_t relative, void* hk, void** og )
 {
     // relative cause ipa hooks finds it by itself
-#if IS_IPA
+#if is_ipa
     static_inline_hook( relative, hk, og );
 #else
     // dobby is fucked up
