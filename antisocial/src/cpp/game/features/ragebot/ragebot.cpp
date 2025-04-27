@@ -4,6 +4,8 @@
 #include "game/sdk/axlebolt/biped_map/biped_map.hpp"
 #include "game/sdk/axlebolt/aiming_data/aiming_data.hpp"
 #include "game/sdk/axlebolt/photon_player/photon_player.hpp"
+#include "game/sdk/axlebolt/weapon_controller/weapon_controller.hpp"
+#include "game/sdk/axlebolt/gun_controller/gun_controller.hpp"
 #include "game/sdk/unity/transform/transform.hpp"
 #include "game/sdk/unity/camera/camera.hpp"
 #include "game/sdk/unity/physics/physics.hpp"
@@ -93,15 +95,22 @@ bool c_ragebot::autowall( const vec3_t& start, const vec3_t& end ) const
     return true;
 }
 
-c_transform* c_ragebot::select_bone( c_biped_map* biped_map, const vec3_t& view ) const
+c_transform* c_ragebot::select_bone( c_biped_map* biped_map, const vec3_t& view, c_gun_controller* gun ) const
 {
+    if ( !gun )
+        return nullptr;
+
     std::vector< c_transform* > bones;
 
+    auto const compare_damage = [ gun ]( const gun_damage_t& damage ) -> bool {
+        return gun->get_damage( damage ) > c::get< int >( g_ctx->cfg.ragebot_minimal_damage );
+    };
+
     biped_map->get_customized( bones,
-                               c::get< bool >( g_ctx->cfg.ragebot_head ),
-                               c::get< bool >( g_ctx->cfg.ragebot_body ),
-                               c::get< bool >( g_ctx->cfg.ragebot_arms ),
-                               c::get< bool >( g_ctx->cfg.ragebot_legs ) );
+                               c::get< bool >( g_ctx->cfg.ragebot_head ) && compare_damage( gun_damage_t::head ),
+                               c::get< bool >( g_ctx->cfg.ragebot_body ) && compare_damage( gun_damage_t::body ),
+                               c::get< bool >( g_ctx->cfg.ragebot_arms ) && compare_damage( gun_damage_t::arms ),
+                               c::get< bool >( g_ctx->cfg.ragebot_legs ) && compare_damage( gun_damage_t::legs ) );
 
     for ( auto const& bone : bones )
     {
@@ -140,7 +149,7 @@ c_transform* c_ragebot::select_bone( c_biped_map* biped_map, const vec3_t& view 
             return bone;
     }
 
-    return bones[ 0 ];
+    return ( bones.size( ) > 0 ) ? bones[ 0 ] : nullptr;
 }
 
 void c_ragebot::execute( c_player_controller* local )
@@ -151,17 +160,23 @@ void c_ragebot::execute( c_player_controller* local )
     if ( !local || !local->alive( ) || c_players_database::get( )->m_players.empty( ) )
         return;
 
+    auto* const weapon = local->get_weapon( );
+    if ( !weapon || !weapon->is_gun( weapon->get_id( ) ) )
+        return;
+
+    auto* const gun = weapon->get_gun( );
+    if ( !gun )
+        return;
+
+    doubletap( local, gun, weapon->get_commands( ) );
+
     auto* const target = c_players_database::get( )->get_ragebot_entity( );
     if ( !target || !target->alive( ) )
         return;
 
-    auto* const photon = target->photon_player( );
-    if ( !photon || photon->get_property< bool >( "untouchable" ) )
-        return;
-
     vec3_t const view_position = g_ctx->features.thirdperson->get_unmodified_view( );
 
-    auto* const bone = select_bone( target->biped_map( ), view_position );
+    auto* const bone = select_bone( target->biped_map( ), view_position, gun );
     if ( !bone )
         return;
 
@@ -240,4 +255,24 @@ void c_ragebot::antiaim( c_player_controller* local ) const
         return;
 
     character->set_local_euler( c::get< vec3_t >( g_ctx->cfg.antiaim_rotation ) );
+}
+
+void c_ragebot::doubletap( c_player_controller* local, c_gun_controller* gun, uintptr_t commands )
+{
+    if ( !local || !local->alive( ) || !gun || !commands || !c::get< bool >( g_ctx->cfg.ragebot_doubletap ) )
+        return;
+
+    auto current_time = std::chrono::steady_clock::now( );
+    auto elapsed_time = std::chrono::duration_cast< std::chrono::milliseconds >( current_time - m_doubletap_time_point ).count( ) / 1000.0f;
+
+    if ( !( *reinterpret_cast< bool* >( commands + 0x10 ) ) || elapsed_time < 1.f )
+        return;
+
+    float const time_fired = gun->time_fired( );
+
+    gun->time_fired( ) = time_fired - ( time_fired * 2 );
+
+    m_fire = true;
+
+    m_doubletap_time_point = std::chrono::steady_clock::now( );
 }

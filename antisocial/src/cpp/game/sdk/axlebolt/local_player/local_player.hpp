@@ -11,4 +11,5 @@ public:
     c_local_player( ) = default;
 
     static team_t m_team;
+    static bool m_in_air;
 };

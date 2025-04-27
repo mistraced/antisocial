@@ -25,9 +25,11 @@
 
 #import "game/hooks/hooks.hpp"
 
+#import "game/features/ragebot/ragebot.hpp"
+
 #define is_ipa
 
-#if is_ipa
+#ifdef is_ipa
 #import "dobby/dobby.hpp"
 #import "dobby/dependencies/h5gg_hook.h"
 #import "dobby/dependencies/mem.h"
@@ -54,7 +56,7 @@ uintptr_t memory_manager::get_base( )
     return 0;
 }
 
-#if is_ipa
+#ifdef is_ipa
 #define static_inline_hook( x, y, z )                                                                                              \
     NSString* result_##y = StaticInlineHookPatch( "Frameworks/UnityFramework.framework/UnityFramework", x, nullptr, ( void* ) y ); \
     if ( result_##y )                                                                                                              \
@@ -69,7 +71,7 @@ uintptr_t memory_manager::get_base( )
 void memory_manager::hook( uintptr_t relative, void* hk, void** og )
 {
     // relative cause ipa hooks finds it by itself
-#if is_ipa
+#ifdef is_ipa
     static_inline_hook( relative, hk, og );
 #else
     // dobby is fucked up
@@ -107,7 +109,9 @@ void memory_manager::hook( uintptr_t relative, void* hk, void** og )
     g_ctx->interface->init( );
     g_ctx->features.init( );
 
-    g_ctx->interface->m_queue.push_back( [] { c_players_database::get( )->update( ); } );
+    g_ctx->interface->m_queue.push_back( [] {
+        c_players_database::get( )->update( );
+    } );
 
     return self;
 }
@@ -205,6 +209,8 @@ void memory_manager::hook( uintptr_t relative, void* hk, void** og )
       memory_manager::base = memory_manager::get_base( );
       if ( !memory_manager::base )
           init_token = 0;
+
+      g_ctx->features.ragebot->m_doubletap_time_point = std::chrono::steady_clock::now( );
 
       g_ctx->il2cpp->initialize( );
 

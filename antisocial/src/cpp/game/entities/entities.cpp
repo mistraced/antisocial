@@ -3,6 +3,8 @@
 #include "game/sdk/axlebolt/player_manager/player_manager.hpp"
 #include "game/sdk/axlebolt/player_controller/player_controller.hpp"
 #include "game/sdk/axlebolt/biped_map/biped_map.hpp"
+#include "game/sdk/axlebolt/weapon_controller/weapon_controller.hpp"
+#include "game/sdk/axlebolt/photon_player/photon_player.hpp"
 #include "game/sdk/unity/physics/physics.hpp"
 #include "game/sdk/unity/transform/transform.hpp"
 #include "game/sdk/unity/camera/camera.hpp"
@@ -67,27 +69,43 @@ c_player_controller* c_players_database::get_ragebot_entity( ) const
 {
     vec3_t const view_position = g_ctx->features.thirdperson->get_unmodified_view( );
 
+    auto* const local = m_local_player;
+    if ( !local || !local->alive( ) )
+        return nullptr;
+
+    auto* const weapon = local->get_weapon( );
+    if ( !weapon || !weapon->is_gun( weapon->get_id( ) ) )
+        return nullptr;
+
+    auto* const gun = weapon->get_gun( );
+    if ( !gun )
+        return nullptr;
+
     for ( auto* const entity : m_players )
     {
         if ( !entity || !entity->alive( ) )
+            continue;
+
+        c_photon_player* const photon = entity->photon_player( );
+        if ( !photon || photon->get_property< bool >( "untouchable" ) )
             continue;
 
         c_biped_map* const biped_map = entity->biped_map( );
         if ( !biped_map )
             continue;
 
-        auto* const head = biped_map->head( );
-        if ( !head )
+        auto* const bone = g_ctx->features.ragebot->select_bone( biped_map, view_position, gun );
+        if ( !bone )
             continue;
 
-        bool const visible = !c_physics::linecast( view_position, head->get_position( ), 16384 );
+        bool const visible = !c_physics::linecast( view_position, bone->get_position( ), 16384 );
 
         bool const wallbang = [ & ]( ) -> bool {
             if ( !c::get< bool >( g_ctx->cfg.ragebot_autowall ) )
                 return false;
 
             raycast_hit_t hit;
-            if ( !c_physics::linecast( view_position, head->get_position( ), &hit, 16384 ) )
+            if ( !c_physics::linecast( view_position, bone->get_position( ), &hit, 16384 ) )
                 return false;
 
             c_component* const collider = c_physics::raycast_get_collider( &hit );

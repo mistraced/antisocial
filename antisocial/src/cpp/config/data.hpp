@@ -24,6 +24,8 @@ struct cfg_t
     declare_variable( bool, ragebot_arms, false );
     declare_variable( bool, ragebot_legs, false );
     declare_variable( bool, ragebot_autowall, false );
+    declare_variable( bool, ragebot_doubletap, false );
+    declare_variable( int, ragebot_minimal_damage, 0 );
 
     declare_variable( bool, misc_thirdperson, false );
     declare_variable( bool, misc_peek_assist, false );

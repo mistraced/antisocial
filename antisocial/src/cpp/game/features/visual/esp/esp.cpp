@@ -2,6 +2,7 @@
 
 #include "game/sdk/axlebolt/player_controller/player_controller.hpp"
 #include "game/sdk/axlebolt/photon_player/photon_player.hpp"
+#include "game/sdk/axlebolt/weapon_controller/weapon_controller.hpp"
 #include "game/sdk/misc/math/math.hpp"
 
 #include "players/players.hpp"
@@ -66,7 +67,7 @@ void c_esp::process_ent_player( c_player_controller* entity ) const
 
     if ( c::get< bool >( g_ctx->cfg.esp_weapon ) )
     {
-        std::string const weapon = entity->get_weapon_name( );
+        std::string const weapon = entity->get_weapon( )->get_name( );
         ImVec2 const weapon_size = g_ctx->fonts->primary.ptr->CalcTextSizeA( g_ctx->fonts->primary.size, FLT_MAX, -1, weapon.c_str( ) );
 
         esp.push_element( esp_element_side::bottom, { weapon_size, [ bounds, weapon_size, weapon ]( ImDrawList* surface, ImVec2 cursor_pos ) -> void {

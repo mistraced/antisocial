@@ -48,6 +48,10 @@ void c_main_form::render( )
         ImGui::Checkbox( "ragebot arms", &c::get< bool >( g_ctx->cfg.ragebot_arms ) );
         ImGui::Checkbox( "ragebot legs", &c::get< bool >( g_ctx->cfg.ragebot_legs ) );
 
+        ImGui::SliderInt( "ragebot mindamage", &c::get< int >( g_ctx->cfg.ragebot_minimal_damage ), 0, 200 );
+
+        ImGui::Checkbox( "ragebot doubletap", &c::get< bool >( g_ctx->cfg.ragebot_doubletap ) );
+
         ImGui::Checkbox( "3rd person", &c::get< bool >( g_ctx->cfg.misc_thirdperson ) );
         ImGui::Checkbox( "peek assist", &c::get< bool >( g_ctx->cfg.misc_peek_assist ) );
 
