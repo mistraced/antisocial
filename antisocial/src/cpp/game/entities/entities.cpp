@@ -17,6 +17,7 @@
 #include "game/features/visual/thirdperson/thirdperson.hpp"
 #include "game/features/visual/esp/esp.hpp"
 #include "game/features/misc/peek_assist/peek_assist.hpp"
+#include "game/features/visual/bullet_tracers/bullet_tracers.hpp"
 
 #include "game/features/ragebot/ragebot.hpp"
 
@@ -26,6 +27,7 @@ void c_players_database::update( )
 {
     auto const clear_data = [ & ]( ) -> void {
         m_players.clear( );
+        g_ctx->features.bullet_tracers->clear( );
         m_local_player = nullptr;
         g_ctx->features.ragebot->m_target = nullptr;
         g_ctx->features.peek_assist->m_peeking = false;
@@ -63,6 +65,8 @@ void c_players_database::update( )
     }
 
     g_ctx->features_mgr->process_local_player( m_local_player );
+
+    g_ctx->features.bullet_tracers->render( );
 }
 
 c_player_controller* c_players_database::get_ragebot_entity( ) const

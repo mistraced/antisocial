@@ -14,5 +14,8 @@ public:
     vec3_t m_last_pos;
 
 public:
+    ~c_peek_assist( ) = default;
+    c_peek_assist( ) = default;
+
     void execute( c_player_controller* local );
 };

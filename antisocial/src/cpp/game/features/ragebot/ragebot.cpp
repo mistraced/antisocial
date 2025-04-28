@@ -268,6 +268,7 @@ void c_ragebot::doubletap( c_player_controller* local, c_gun_controller* gun, ui
     if ( !( *reinterpret_cast< bool* >( commands + 0x10 ) ) || elapsed_time < 1.f )
         return;
 
+    // sn0w.pw thing
     float const time_fired = gun->time_fired( );
 
     gun->time_fired( ) = time_fired - ( time_fired * 2 );

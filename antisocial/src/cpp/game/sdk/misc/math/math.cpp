@@ -2,6 +2,8 @@
 
 #include "../../unity/camera/camera.hpp"
 #include "../../unity/physics/physics.hpp"
+#include "../../unity/transform/transform.hpp"
+#include "../../unity/component/component.hpp"
 
 w2s_t math::world_to_screen( vec3_t position )
 {
@@ -74,4 +76,16 @@ void math::draw_3d_dotted_circle( vec3_t pos, float radius, ImColor color, float
                 ImGui::GetBackgroundDrawList( )->AddCircleFilled( w2s.position, 3, color, 120 );
         }
     }
+}
+
+vec3_t math::calculate_world_position( vec3_t input )
+{
+    c_transform* const camera_transform = reinterpret_cast< c_component* >( c_camera::get_main( ) )->get_transform( );
+
+    vec3_t const cam_pos = camera_transform->get_position( );
+    vec3_t const cam_normal = camera_transform->get_forward( );
+    vec3_t const dir = input - cam_pos;
+
+    float const cam_dot = vec3_t::dot( cam_normal, dir );
+    return cam_dot <= 0 ? cam_pos + ( dir - ( cam_normal * cam_dot * 1.01 ) ) : input;
 }

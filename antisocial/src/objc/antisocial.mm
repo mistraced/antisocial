@@ -27,7 +27,7 @@
 
 #import "game/features/ragebot/ragebot.hpp"
 
-#define is_ipa
+// #define is_ipa
 
 #ifdef is_ipa
 #import "dobby/dobby.hpp"

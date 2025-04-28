@@ -52,6 +52,8 @@ void c_main_form::render( )
 
         ImGui::Checkbox( "ragebot doubletap", &c::get< bool >( g_ctx->cfg.ragebot_doubletap ) );
 
+        ImGui::Checkbox( "bullet tracers", &c::get< bool >( g_ctx->cfg.visual_bullet_tracers ) );
+
         ImGui::Checkbox( "3rd person", &c::get< bool >( g_ctx->cfg.misc_thirdperson ) );
         ImGui::Checkbox( "peek assist", &c::get< bool >( g_ctx->cfg.misc_peek_assist ) );
 
