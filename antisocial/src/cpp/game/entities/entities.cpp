@@ -31,6 +31,7 @@ void c_players_database::update( )
         m_local_player = nullptr;
         g_ctx->features.ragebot->m_target = nullptr;
         g_ctx->features.peek_assist->m_peeking = false;
+        g_ctx->features.peek_assist->m_peeked = false;
     };
 
     auto* const player_manager = c_player_manager::get_instance( );

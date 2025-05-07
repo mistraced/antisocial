@@ -2,10 +2,21 @@
 
 void c_esp_player::render_rect( ) const
 {
-    m_surface->AddRect( m_data.bounds.Min + ImVec2( 1, 1 ), m_data.bounds.Max - ImVec2( 1, 1 ), ImColor( 0, 0, 0, 120 ) );
-    m_surface->AddRect( m_data.bounds.Min - ImVec2( 1, 1 ), m_data.bounds.Max + ImVec2( 1, 1 ), ImColor( 0, 0, 0, 120 ) );
+    int const width = std::min( static_cast< int >( m_data.bounds.GetWidth( ) / 10.f ), 1 );
 
-    m_surface->AddRect( m_data.bounds.Min, m_data.bounds.Max, ImColor( 255, 255, 255, 220 ) );
+    ImColor const primary_color = ImColor( 255, 255, 255 );
+    ImColor const secondary_color = ImColor( 207, 45, 75 );
+
+    m_surface->AddShadowRect( { m_data.bounds.GetCenter( ).x - width / 2, m_data.bounds.Min.y }, { m_data.bounds.GetCenter( ).x + width / 2, m_data.bounds.Max.y }, primary_color, width * 4, { 0, 0 }, width * 4 );
+
+    m_surface->AddShadowRect( { m_data.bounds.Min.x + width, m_data.bounds.GetCenter( ).y - width / 2 }, { m_data.bounds.Max.x - width, m_data.bounds.GetCenter( ).y + width / 2 }, primary_color, width * 4, { 0, 0 }, width * 4 );
+
+    m_surface->AddShadowCircle( m_data.bounds.GetCenter( ), width / 2, secondary_color, width * 30, { 0, 0 }, 0, 400 );
+
+    m_surface->AddLine( { m_data.bounds.GetCenter( ).x, m_data.bounds.Min.y }, { m_data.bounds.GetCenter( ).x, m_data.bounds.Max.y }, primary_color, width );
+    m_surface->AddLine( { m_data.bounds.Min.x + width, m_data.bounds.GetCenter( ).y }, { m_data.bounds.Max.x - width, m_data.bounds.GetCenter( ).y }, primary_color, width );
+    m_surface->AddLine( { m_data.bounds.Min.x, m_data.bounds.GetCenter( ).y - m_data.bounds.GetHeight( ) / 4 }, { m_data.bounds.Max.x, m_data.bounds.GetCenter( ).y - m_data.bounds.GetHeight( ) / 4 }, primary_color, width );
+    m_surface->AddLine( { m_data.bounds.Min.x, m_data.bounds.GetCenter( ).y + m_data.bounds.GetHeight( ) / 4 }, { m_data.bounds.Max.x, m_data.bounds.GetCenter( ).y + m_data.bounds.GetHeight( ) / 4 }, primary_color, width );
 }
 
 void c_esp_player::render_elements( ) const

@@ -30,29 +30,28 @@ void c_thirdperson::late( c_player_controller* local ) const
     vec3_t const adjusted = camera_position + ( ( ( up * 3 ) / 2.0f ) / 5.0f );
 
     raycast_hit_t hit;
-    if ( c_physics::linecast( entity_location + vec3_t( 0.f, 1.6f, 0.f ), adjusted, &hit, 16384 ) )
+    if ( !c_physics::linecast( entity_location + vec3_t( 0.f, 1.6f, 0.f ), adjusted, &hit, 16384 ) )
     {
-        c_component* const collider = c_physics::raycast_get_collider( &hit );
-
-        if ( collider )
-        {
-            unity::string* const surface_tag = collider->get_tag( );
-            if ( surface_tag )
-            {
-                std::string const surface_name = surface_tag->to_cpp_string( );
-                int const surface_type = c_physics::surface_from_tag( surface_tag );
-
-                if ( surface_type != surface_type::character && surface_type != surface_type::unknown && surface_type != surface_type::water && surface_type != surface_type::ground )
-                {
-                    transform->set_position( hit.point );
-
-                    return;
-                }
-            }
-        }
+        transform->set_position( adjusted );
+        return;
     }
 
-    transform->set_position( adjusted );
+    c_component* const collider = c_physics::raycast_get_collider( &hit );
+
+    if ( !collider )
+        return;
+
+    unity::string* const surface_tag = collider->get_tag( );
+    if ( !surface_tag )
+        return;
+
+    std::string const surface_name = surface_tag->to_cpp_string( );
+    int const surface_type = c_physics::surface_from_tag( surface_tag );
+
+    if ( surface_type != surface_type::character && surface_type != surface_type::unknown && surface_type != surface_type::water && surface_type != surface_type::ground )
+    {
+        transform->set_position( hit.point );
+    }
 }
 
 void c_thirdperson::update( c_player_controller* entity ) const
